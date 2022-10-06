@@ -1,79 +1,63 @@
 import './charList.scss';
 
-import React , {Component} from "react";
+import {useState , useRef , useEffect} from "react";
 import PropTypes from "prop-types";
 
 import MarvelInfo from "../../services/request";
 import Spinner from "../spinner/Spinner";
 
-class CharList extends Component{
+const CharList = (props) => {
 
-    constructor(props){
-        super(props)
-        this.myref = React.createRef()
-    }
+    const [char , setChar] = useState([])
+    const [loading , setLoading] = useState(true)
+    const [offset , setOffset] = useState(110)
+    const [newItems , setNewItems] = useState(false)
+    const [endedChar , setEndedChar] = useState(false)
 
-    state = {
-        char : [],
-        loading: true,
-        offset: 110,
-        newItems : false,
-        endedChar : false
-    }
+    const marvelInfo = new MarvelInfo()
 
-    marvelInfo = new MarvelInfo()
+    useEffect( () => {
+        onRequest()
+    } , [])
 
-    componentDidMount() {
-        this.onRequest()
-    }
-
-    onRequest(offset) {
-        this.onLoadingCharacters()
-        this.marvelInfo.getAllCharacters(offset).then(res => {
-            this.onLoadedChar(res)
+    const onRequest = (offset) => {
+        onLoadingCharacters()
+        marvelInfo.getAllCharacters(offset).then(res => {
+            onLoadedChar(res)
         })
     }
 
-    onLoadingCharacters = () => {
-        this.setState({
-            newItems: true
-        })
+    const onLoadingCharacters = () => {
+        setLoading(true)
     }
 
-    onLoadedChar = (newCharacters) => {
+    const onLoadedChar = (newCharacters) => {
         let ended = false
 
         if(newCharacters.length < 9){
             ended = true
         }
-
-        this.setState(({char , offset}) => ({
-            char: [...char , ...newCharacters],
-            loading: false,
-            offset: offset + 9,
-            newItems: false,
-            endedChar: ended
-        }))
+        setChar(char => [...char , ...newCharacters])
+        setLoading(false)
+        setOffset(offset => offset + 9)
+        setNewItems(false)
+        setEndedChar(ended)
     }
 
-    characterDataTransfer = (id) => {
-        this.props.charInfo(id)
+    const characterDataTransfer = (id) => {
+        props.charInfo(id)
     }
 
-    charItems = []
+    const charItems = useRef([])
 
-    setRef = (elem) => {
-        this.charItems.push(elem)
-    }
-
-    onFocus = (index) => {
-        this.charItems.forEach(item => {
+    const onFocus = (index) => {
+        charItems.current.forEach(item => {
             item.classList.remove("char__item_selected")
         })
-        this.charItems[index].classList.add("char__item_selected")
+        charItems.current[index].classList.add("char__item_selected")
     }
 
-    renderCharacterList = (char) => {
+    const renderCharacterList = (char) => {
         return char.map(({id , name , thumbnail} , index) => {
             let cssStyleThumbnail = {"objectFit" : "cover"}
 
@@ -83,14 +67,14 @@ class CharList extends Component{
 
             return (
                 <li key={id}
-                    ref={this.setRef}
+                    ref={el => charItems.current[index] = el }
                     tabIndex={0}
                     className="char__item"
-                    onClick={() => {this.characterDataTransfer(id); this.onFocus(index)}}
+                    onClick={() => {characterDataTransfer(id); onFocus(index)}}
                     onKeyDown={(e) => {
                         if(e.code === "Enter"){
-                            this.characterDataTransfer(id);
-                            this.onFocus(index)
+                            characterDataTransfer(id);
+                            onFocus(index)
                         }
                     }}>
 
@@ -101,28 +85,25 @@ class CharList extends Component{
         })
     }
 
-    render(){
-        const {char , loading , offset , newItems , endedChar} = this.state
-        const character = this.renderCharacterList(char)
-        const loadingInfo = loading ? <Spinner /> : null
-        const content = !loading ? character : null
+    const character = renderCharacterList(char)
+    const loadingInfo = loading ? <Spinner /> : null
+    const content = !loading ? character : null
 
-        return (
-            <div ref={this.myref} className="char__list">
-                <ul className="char__grid">
-                    {loadingInfo}
-                    {content}
-                </ul>
-                <button
-                    onClick={() => this.onRequest(offset)}
-                    disabled={newItems}
-                    style={{display: endedChar ? "none" : "block"}}
-                    className="button button__main button__long">
-                    <div className="inner">load more</div>
-                </button>
-            </div>
-        )
-    }
+    return (
+        <div className="char__list">
+            <ul className="char__grid">
+                {loadingInfo}
+                {content}
+            </ul>
+            <button
+                onClick={() => onRequest(offset)}
+                disabled={newItems}
+                style={{display: endedChar ? "none" : "block"}}
+                className="button button__main button__long">
+                <div className="inner">load more</div>
+            </button>
+        </div>
+    )
 }
 
 CharList.propTypes = {

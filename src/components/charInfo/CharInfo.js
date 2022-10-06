@@ -1,58 +1,45 @@
 import './charInfo.scss';
-import {Component} from "react"
+import {useState , useEffect} from "react"
 import Spinner from "../spinner/Spinner"
 import Skeleton from "../skeleton/Skeleton"
 import MarvelInfo from "../../services/request"
 
-class CharInfo extends Component {
-    constructor(props) {
-        super(props);
-        this.state = {
-            char: null,
-            loading: false
-        }
+const CharInfo = ({charInfo}) => {
+
+    const [char , setChar] = useState(null)
+    const [loading , setLoading] = useState(false)
+
+    const marvel = new MarvelInfo()
+
+    useEffect(() => {
+        getCharInfo()
+    },[charInfo])
+
+    const loadingInfo = () => {
+        setLoading(true)
     }
 
-    marvel = new MarvelInfo()
-
-    componentDidMount(){
-        this.getCharInfo()
+    const updateCharInfo = (char) => {
+        setChar(char)
+        setLoading(loading)
     }
 
-    componentDidUpdate(prevProps){
-        if(prevProps.charInfo !== this.props.charInfo){
-            this.getCharInfo()
-        }
-    }
-
-    loadingInfo = () => {
-        this.setState({loading:true})
-    }
-
-    updateCharInfo = (char) => {
-        this.setState({char , loading:false})
-    }
-
-    getCharInfo = () => {
-        const {charInfo} = this.props
+    const getCharInfo = () => {
         if(!charInfo) return
-        this.loadingInfo()
-        this.marvel.getCharacter(charInfo).then(res => this.updateCharInfo(res))
+        loadingInfo()
+        marvel.getCharacter(charInfo).then(res => updateCharInfo(res))
     }
 
-    render() {
-        const {char , loading} = this.state
-        const spinner = loading ? <Spinner /> : null;
-        const skeleton = loading || char ? null : <Skeleton />;
-        const content = !loading && char ? <ViewChar charInfo={char}/> : null;
-        return (
-            <div className="char__info">
-                {skeleton}
-                {spinner}
-                {content}
-            </div>
-        )
-    }
+    const spinner = loading ? <Spinner /> : null;
+    const skeleton = loading || char ? null : <Skeleton />;
+    const content = !loading && char ? <ViewChar charInfo={char}/> : null;
+    return (
+        <div className="char__info">
+            {skeleton}
+            {spinner}
+            {content}
+        </div>
+    )
 }
 
 export default CharInfo;

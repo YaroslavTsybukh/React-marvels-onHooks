@@ -2,32 +2,25 @@ import './charInfo.scss';
 import {useState , useEffect} from "react"
 import Spinner from "../spinner/Spinner"
 import Skeleton from "../skeleton/Skeleton"
-import MarvelInfo from "../../services/request"
+import useMarvelInfo from "../../services/request"
 
 const CharInfo = ({charInfo}) => {
 
     const [char , setChar] = useState(null)
-    const [loading , setLoading] = useState(false)
 
-    const marvel = new MarvelInfo()
+    const {loading , getCharacter} = useMarvelInfo()
 
     useEffect(() => {
         getCharInfo()
     },[charInfo])
 
-    const loadingInfo = () => {
-        setLoading(true)
-    }
-
     const updateCharInfo = (char) => {
         setChar(char)
-        setLoading(loading)
     }
 
     const getCharInfo = () => {
         if(!charInfo) return
-        loadingInfo()
-        marvel.getCharacter(charInfo).then(res => updateCharInfo(res))
+        getCharacter(charInfo).then(res => updateCharInfo(res))
     }
 
     const spinner = loading ? <Spinner /> : null;
@@ -48,7 +41,7 @@ const ViewChar = ({charInfo}) => {
 
     const {name , description , homepage , thumbnail , wiki , comics} = charInfo
     let objectFit = {"objectFit" : "cover"}
-
+    console.log(comics)
     if(thumbnail === "http://i.annihil.us/u/prod/marvel/i/mg/b/40/image_not_available.jpg") {
         objectFit = {"objectFit" : "contain"}
     }

@@ -3,32 +3,27 @@ import './charList.scss';
 import {useState , useRef , useEffect} from "react";
 import PropTypes from "prop-types";
 
-import MarvelInfo from "../../services/request";
+import useMarvelInfo from "../../services/request";
 import Spinner from "../spinner/Spinner";
 
 const CharList = (props) => {
 
     const [char , setChar] = useState([])
-    const [loading , setLoading] = useState(true)
     const [offset , setOffset] = useState(110)
-    const [newItems , setNewItems] = useState(false)
+    const [newItemsLoading , setNewItemsLoading] = useState(false)
     const [endedChar , setEndedChar] = useState(false)
 
-    const marvelInfo = new MarvelInfo()
+    const {getAllCharacters , loading} = useMarvelInfo()
 
     useEffect( () => {
-        onRequest()
+        onRequest(offset , true)
     } , [])
 
-    const onRequest = (offset) => {
-        onLoadingCharacters()
-        marvelInfo.getAllCharacters(offset).then(res => {
+    const onRequest = (offset , initial) => {
+        initial ? setNewItemsLoading(false) : setNewItemsLoading(true)
+        getAllCharacters(offset).then(res => {
             onLoadedChar(res)
         })
-    }
-
-    const onLoadingCharacters = () => {
-        setLoading(true)
     }
 
     const onLoadedChar = (newCharacters) => {
@@ -38,9 +33,8 @@ const CharList = (props) => {
             ended = true
         }
         setChar(char => [...char , ...newCharacters])
-        setLoading(false)
         setOffset(offset => offset + 9)
-        setNewItems(false)
+        setNewItemsLoading(false)
         setEndedChar(ended)
     }
 
@@ -86,18 +80,17 @@ const CharList = (props) => {
     }
 
     const character = renderCharacterList(char)
-    const loadingInfo = loading ? <Spinner /> : null
-    const content = !loading ? character : null
+    const loadingInfo = loading && !newItemsLoading ? <Spinner /> : null
 
     return (
         <div className="char__list">
             <ul className="char__grid">
                 {loadingInfo}
-                {content}
+                {character}
             </ul>
             <button
                 onClick={() => onRequest(offset)}
-                disabled={newItems}
+                disabled={newItemsLoading}
                 style={{display: endedChar ? "none" : "block"}}
                 className="button button__main button__long">
                 <div className="inner">load more</div>

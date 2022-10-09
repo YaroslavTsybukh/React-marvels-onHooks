@@ -1,16 +1,14 @@
 import './randomChar.scss';
 import {useState , useEffect} from "react"
-import MarvelInfo from "../../services/request";
+import useMarvelInfo from "../../services/request";
 import mjolnir from '../../resources/img/mjolnir.png';
 import Spinner from "../spinner/Spinner";
 import Error from "../error/Error"
 
 const RandomChar = () => {
     const [char , setChar] = useState({})
-    const [loading , setLoading] = useState(true)
-    const [error , setError] = useState(false)
 
-    const marvelInfo = new MarvelInfo()
+    const {getCharacter , loading , error , clearError} = useMarvelInfo()
 
     useEffect(() => {
         updateChar()
@@ -18,22 +16,12 @@ const RandomChar = () => {
 
     const charInfo = (char) => {
         setChar(char)
-        setLoading(false)
-    }
-
-    const loadingSpinner = () => {
-        setLoading(true)
-    }
-
-    const errorShow = () => {
-        setError(true)
-        setLoading(false)
     }
 
     const updateChar = () => {
+        clearError()
         const randomNumber = Math.floor(Math.random() * (1011175 - 1011334) + 1011334)
-        loadingSpinner()
-        marvelInfo.getCharacter(randomNumber).then(res => charInfo(res)).catch(errorShow)
+        getCharacter(randomNumber).then(res => charInfo(res))
     }
 
     const errorGif = error ? <Error /> : null;

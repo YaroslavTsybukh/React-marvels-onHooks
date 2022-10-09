@@ -1,26 +1,29 @@
-class MarvelInfo {
-    _apiKey = "9e0a30c0c5b259f9360bba6b1f9e4410"
-    _baseOffset = 110
+import {useHTTP} from "../hooks/http.hook"
+import charList from "../components/charList/CharList";
 
-    getInfo = async (url) => {
-        let response = await fetch(url)
-        if(!response.ok){
-            throw new Error(`Ошибка статус: ${response.status}`)
-        }
-        return await response.json()
+const useMarvelInfo = () => {
+    const _apiKey = "9e0a30c0c5b259f9360bba6b1f9e4410"
+    const _baseOffset = 110
+
+    const { request , error , loading , clearError} = useHTTP()
+
+    const getAllCharacters =  async (offset = _baseOffset) => {
+        let response = await request(`https://gateway.marvel.com:443/v1/public/characters?limit=9&offset=${offset}&apikey=${_apiKey}`)
+        return response.data.results.map(_transformDataCharacters)
     }
 
-    getAllCharacters =  async (offset = this._baseOffset) => {
-        let response = await this.getInfo(`https://gateway.marvel.com:443/v1/public/characters?limit=9&offset=${offset}&apikey=${this._apiKey}`)
-        return response.data.results.map(this._transformData)
+    const getCharacter = async (id) => {
+        let response = await request(`https://gateway.marvel.com:443/v1/public/characters/${id}?apikey=${_apiKey}`)
+        return _transformDataCharacters(response.data.results[0])
     }
 
-    getCharacter = async (id) => {
-        let response = await this.getInfo(`https://gateway.marvel.com:443/v1/public/characters/${id}?apikey=${this._apiKey}`)
-        return this._transformData(response.data.results[0])
+    const getAllComics = async (offset = _baseOffset) => {
+        const response = await request(`https://gateway.marvel.com:443/v1/public/comics?limit=8&offset=${offset}&apikey=${_apiKey}`)
+        return response.data.results.map(_transformDataComics)
+
     }
 
-    _transformData = (char) => {
+    const _transformDataCharacters = (char) => {
         return {
             id: char.id,
             name: char.name,
@@ -28,9 +31,20 @@ class MarvelInfo {
             thumbnail: char.thumbnail.path + "." + char.thumbnail.extension,
             homepage: char.urls[0].url,
             wiki: char.urls[1].url,
-            comics: char.comics.items
+            comics : char.comics.items
         }
     }
+
+    const _transformDataComics = (char) => {
+        return {
+            name: char.title,
+            price: char.prices[0].price + "$",
+            // url : char.urls[0].url,
+            thumbnail : `${char.thumbnail.path}.${char.thumbnail.extension}`
+        }
+    }
+
+    return {getAllCharacters , getCharacter , loading , error , clearError , getAllComics}
 }
 
-export default MarvelInfo
+export default useMarvelInfo

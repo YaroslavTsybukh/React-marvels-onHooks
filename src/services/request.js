@@ -20,7 +20,6 @@ const useMarvelInfo = () => {
     const getAllComics = async (offset = _baseOffset) => {
         const response = await request(`https://gateway.marvel.com:443/v1/public/comics?limit=8&offset=${offset}&apikey=${_apiKey}`)
         return response.data.results.map(_transformDataComics)
-
     }
 
     const _transformDataCharacters = (char) => {

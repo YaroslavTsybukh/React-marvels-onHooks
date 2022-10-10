@@ -32,7 +32,7 @@ const CharList = (props) => {
         if(newCharacters.length < 9){
             ended = true
         }
-        setChar(char => [...char , ...newCharacters])
+        setChar([...char , ...newCharacters])
         setOffset(offset => offset + 9)
         setNewItemsLoading(false)
         setEndedChar(ended)

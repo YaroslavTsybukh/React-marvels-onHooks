@@ -24,14 +24,14 @@ const ComicsList = () => {
     }
 
     const updateComics = (comicsArray) => {
+        console.log(comicsArray)
         let ended = false
 
         if(comicsArray.length < 8) {
             ended = true
         }
-
+        setComics([...comics , ...comicsArray])
         setOffset(offset => offset + 8)
-        setComics(comics => [...comics , ...comicsArray])
         setEndedComics(ended)
         setNewItemsLoading(false)
     }

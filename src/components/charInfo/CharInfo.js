@@ -1,14 +1,17 @@
-import './charInfo.scss';
 import {useState , useEffect} from "react"
+import {useNavigate} from "react-router-dom"
+
+import './charInfo.scss';
+
 import Spinner from "../spinner/Spinner"
 import Skeleton from "../skeleton/Skeleton"
 import useMarvelInfo from "../../services/request"
 
 const CharInfo = ({charInfo}) => {
-
     const [char , setChar] = useState(null)
 
     const {loading , getCharacter} = useMarvelInfo()
+    const navigate = useNavigate()
 
     useEffect(() => {
         getCharInfo()
@@ -23,9 +26,13 @@ const CharInfo = ({charInfo}) => {
         getCharacter(charInfo).then(res => updateCharInfo(res))
     }
 
+    const navigateComic = (url) => {
+        navigate(url.slice(35))
+    }
+
     const spinner = loading ? <Spinner /> : null;
     const skeleton = loading || char ? null : <Skeleton />;
-    const content = !loading && char ? <ViewChar charInfo={char}/> : null;
+    const content = !loading && char ? <ViewChar charInfo={char} info={charInfo} navigate={navigateComic}/> : null;
     return (
         <div className="char__info">
             {skeleton}
@@ -37,11 +44,11 @@ const CharInfo = ({charInfo}) => {
 
 export default CharInfo;
 
-const ViewChar = ({charInfo}) => {
+const ViewChar = ({charInfo , navigate}) => {
+    const {id , name , description , homepage , thumbnail , wiki , comics} = charInfo
 
-    const {name , description , homepage , thumbnail , wiki , comics} = charInfo
     let objectFit = {"objectFit" : "cover"}
-    console.log(comics)
+
     if(thumbnail === "http://i.annihil.us/u/prod/marvel/i/mg/b/40/image_not_available.jpg") {
         objectFit = {"objectFit" : "contain"}
     }
@@ -71,11 +78,13 @@ const ViewChar = ({charInfo}) => {
                     { comics.length > 0 ? null : <li className="char__comics-item">There are no comics here</li>}
 
                     {
-                        comics.map((item , i) => {
+                        comics.map(({resourceURI , name} , i) => {
                             if(i > 9) return
                             return (
-                                <li key={i} className="char__comics-item">
-                                    {item.name}
+                                <li key={i}
+                                    className="char__comics-item"
+                                    onClick={() => navigate(resourceURI)}>
+                                    {name}
                                 </li>
                             )
                         })

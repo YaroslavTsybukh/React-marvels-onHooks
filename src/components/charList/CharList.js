@@ -6,7 +6,7 @@ import PropTypes from "prop-types";
 import useMarvelInfo from "../../services/request";
 import Spinner from "../spinner/Spinner";
 
-const CharList = (props) => {
+const CharList = ({charInfo}) => {
 
     const [char , setChar] = useState([])
     const [offset , setOffset] = useState(110)
@@ -39,7 +39,7 @@ const CharList = (props) => {
     }
 
     const characterDataTransfer = (id) => {
-        props.charInfo(id)
+        charInfo(id)
     }
 
     const charItems = useRef([])

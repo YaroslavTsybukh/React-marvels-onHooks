@@ -22,6 +22,11 @@ const useMarvelInfo = () => {
         return response.data.results.map(_transformDataComics)
     }
 
+    const getComic = async(id) => {
+        const response = await request(`https://gateway.marvel.com:443/v1/public/comics/${id}?apikey=${_apiKey}`)
+        return _transformDataComics(response.data.results[0])
+    }
+
     const _transformDataCharacters = (char) => {
         return {
             id: char.id,
@@ -34,16 +39,19 @@ const useMarvelInfo = () => {
         }
     }
 
-    const _transformDataComics = (char) => {
+    const _transformDataComics = (comic) => {
         return {
-            name: char.title,
-            price: char.prices[0].price + "$",
-            // url : char.urls[0].url,
-            thumbnail : `${char.thumbnail.path}.${char.thumbnail.extension}`
+            id: comic.id,
+            name: comic.title,
+            description: comic.description || 'There is no description',
+            price: comic.prices[0].price + "$",
+            pageCount: `${comic.pageCount} pages`,
+            language: comic.textObjects.language || "en-us",
+            thumbnail : `${comic.thumbnail.path}.${comic.thumbnail.extension}`
         }
     }
 
-    return {getAllCharacters , getCharacter , loading , error , clearError , getAllComics}
+    return {getAllCharacters , getCharacter , loading , error , clearError , getAllComics , getComic}
 }
 
 export default useMarvelInfo

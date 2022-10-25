@@ -4,6 +4,7 @@ import {useState , useEffect} from "react"
 
 import AppBanner from "../appBanner/AppBanner";
 import Spinner from "../spinner/Spinner";
+import {Helmet} from "react-helmet";
 
 const SinglePage = ({Component , type}) => {
     const [info , setInfo] = useState({})
@@ -35,6 +36,13 @@ const SinglePage = ({Component , type}) => {
 
     return(
         <>
+            <Helmet>
+                <meta
+                    name="description"
+                    content="Single page"
+                />
+                <title>Single page for {type}</title>
+            </Helmet>
             <AppBanner/>
             {spinner}
             {content}

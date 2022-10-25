@@ -1,10 +1,10 @@
-import {Link , useNavigate , useLocation} from "react-router-dom"
+import {Link , useNavigate} from "react-router-dom"
+import {Helmet} from "react-helmet"
 
 import Error from "../error/Error";
 
 const NotFoundPage = () => {
     const navigate = useNavigate()
-    const location = useLocation()
 
     const navigateToPage = () => {
         navigate(-1)
@@ -12,6 +12,13 @@ const NotFoundPage = () => {
 
     return (
         <div style={{"textAlign": "center"}}>
+            <Helmet>
+                <meta
+                    name="description"
+                    content="404page"
+                />
+                <title>404page</title>
+            </Helmet>
             <Error/>
             <p style={{'textAlign': 'center', 'fontWeight': 'bold', 'fontSize': '24px'}}>Page doesn't exist</p>
             <Link

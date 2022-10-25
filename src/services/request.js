@@ -1,5 +1,4 @@
 import {useHTTP} from "../hooks/http.hook"
-import charList from "../components/charList/CharList";
 
 const useMarvelInfo = () => {
     const _apiKey = "9e0a30c0c5b259f9360bba6b1f9e4410"
@@ -7,8 +6,16 @@ const useMarvelInfo = () => {
 
     const { request , error , loading , clearError} = useHTTP()
 
-    const getAllCharacters =  async (offset = _baseOffset) => {
-        let response = await request(`https://gateway.marvel.com:443/v1/public/characters?limit=9&offset=${offset}&apikey=${_apiKey}`)
+    const getAllCharacters =  async (offset = _baseOffset , queryParam , value) => {
+        let response = await request(`https://gateway.marvel.com:443/v1/public/characters?${queryParam}=${value}&offset=${offset}&apikey=${_apiKey}`)
+        return response.data.results.map(_transformDataCharacters)
+    }
+
+    const getAllCharactersBySearch = async (value) => {
+        const url = new URL("https://gateway.marvel.com:443/v1/public/characters")
+        url.searchParams.set("name" , value)
+        url.searchParams.set("apikey" , _apiKey)
+        const response = await request(url)
         return response.data.results.map(_transformDataCharacters)
     }
 
@@ -31,7 +38,7 @@ const useMarvelInfo = () => {
         return {
             id: char.id,
             name: char.name,
-            description: char.description && char.description.length > 50 ? char.description.slice(0,51) + "..." : "Описания нет",
+            description: char.description ? char.description.slice(0,210) + "..." : "Описания нет",
             thumbnail: char.thumbnail.path + "." + char.thumbnail.extension,
             homepage: char.urls[0].url,
             wiki: char.urls[1].url,
@@ -51,7 +58,7 @@ const useMarvelInfo = () => {
         }
     }
 
-    return {getAllCharacters , getCharacter , loading , error , clearError , getAllComics , getComic}
+    return {getAllCharacters , getCharacter , loading , error , clearError , getAllComics , getComic , getAllCharactersBySearch}
 }
 
 export default useMarvelInfo

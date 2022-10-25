@@ -1,7 +1,6 @@
 import './charList.scss';
 
 import {useState , useRef , useEffect} from "react";
-import {CSSTransition , TransitionGroup} from "react-transition-group";
 import PropTypes from "prop-types";
 
 import useMarvelInfo from "../../services/request";
@@ -23,7 +22,7 @@ const CharList = ({charInfo}) => {
 
     const onRequest = (offset , initial) => {
         initial ? setNewItemsLoading(false) : setNewItemsLoading(true)
-        getAllCharacters(offset).then(res => {
+        getAllCharacters(offset , "limit" , 9).then(res => {
             onLoadedChar(res)
         })
     }
@@ -62,22 +61,21 @@ const CharList = ({charInfo}) => {
             }
 
             return (
-                <CSSTransition key={id} timeout={duration} classNames="char__item">
-                    <li ref={el => charItems.current[index] = el }
-                        tabIndex={0}
-                        className="char__item"
-                        onClick={() => {characterDataTransfer(id); onFocus(index)}}
-                        onKeyDown={(e) => {
-                            if(e.code === "Enter"){
-                                characterDataTransfer(id);
-                                onFocus(index)
-                            }
-                        }}>
+                <li ref={el => charItems.current[index] = el }
+                    key={id}
+                    tabIndex={0}
+                    className="char__item"
+                    onClick={() => {characterDataTransfer(id); onFocus(index)}}
+                    onKeyDown={(e) => {
+                        if(e.code === "Enter"){
+                            characterDataTransfer(id);
+                            onFocus(index)
+                        }
+                    }}>
 
-                        <img src={thumbnail} alt="abyss" style={cssStyleThumbnail}/>
-                        <div className="char__name">{name}</div>
-                    </li>
-                </CSSTransition>
+                    <img src={thumbnail} alt="abyss" style={cssStyleThumbnail}/>
+                    <div className="char__name">{name}</div>
+                </li>
             )
         })
     }
@@ -89,9 +87,7 @@ const CharList = ({charInfo}) => {
         <div className="char__list">
             <ul className="char__grid">
                 {loadingInfo}
-                <TransitionGroup component={null}>
-                    {character}
-                </TransitionGroup>
+                {character}
             </ul>
             <button
                 onClick={() => onRequest(offset)}

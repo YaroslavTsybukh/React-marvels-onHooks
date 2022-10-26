@@ -1,4 +1,4 @@
-import {useState , useRef , useEffect} from "react";
+import {useState, useRef, useEffect, useMemo} from "react";
 import PropTypes from "prop-types";
 
 import useMarvelInfo from "../../services/request";
@@ -94,10 +94,14 @@ const CharList = ({charInfo}) => {
         })
     }
 
+    const content = useMemo(() => {
+        return setContent(process , () => renderCharacterList(char) , newItemsLoading)
+    } , [process])
+
     return (
         <div className="char__list">
             <ul className="char__grid">
-                {setContent(process , () => renderCharacterList(char) , newItemsLoading)}
+                {content}
             </ul>
             <button
                 onClick={() => onRequest(offset)}

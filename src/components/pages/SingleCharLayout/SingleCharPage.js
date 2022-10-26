@@ -2,8 +2,8 @@ import {Link , useParams} from "react-router-dom";
 
 import  "./singleChar.scss"
 
-const ViewSingleCharPage = ({info}) => {
-    const {thumbnail , name , description} = info
+const ViewSingleCharPage = ({data}) => {
+    const {thumbnail , name , description} = data
     return(
         <div className="single-comic">
             <img src={thumbnail} alt={name} className="single-comic__char-img"/>

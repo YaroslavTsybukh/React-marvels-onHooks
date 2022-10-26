@@ -9,7 +9,7 @@ import './charSearchForm.scss'
 const CharSearch = () => {
     const [charInfo , setCharInfo] = useState(null)
 
-    const {getAllCharactersBySearch} = useMarvelInfo()
+    const {getAllCharactersBySearch , process , setProcess} = useMarvelInfo()
 
     const findChar = (name) => {
         getAllCharactersBySearch(name).then(res => setCharInfo(res))
@@ -44,7 +44,6 @@ const CharSearch = () => {
                 onSubmit={({charName}) => findChar(charName)}>
 
                 {({errors}) => {
-                    console.log(errors)
                     return (
                         <Form>
                             <label className="char__search-label" htmlFor="charName">Or find a character by name:</label>

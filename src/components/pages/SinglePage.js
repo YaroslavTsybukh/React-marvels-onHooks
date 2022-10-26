@@ -1,14 +1,15 @@
 import {Link , useParams} from "react-router-dom";
 import useMarvelInfo from "../../services/request"
 import {useState , useEffect} from "react"
+import {Helmet} from "react-helmet";
 
 import AppBanner from "../appBanner/AppBanner";
-import Spinner from "../spinner/Spinner";
-import {Helmet} from "react-helmet";
+import setContent from "../../utils/setContent"
+
 
 const SinglePage = ({Component , type}) => {
     const [info , setInfo] = useState({})
-    const {getCharacter , getComic} = useMarvelInfo()
+    const {getCharacter , getComic , process , setProcess} = useMarvelInfo()
     const {id} = useParams()
 
     useEffect(() => {
@@ -19,10 +20,10 @@ const SinglePage = ({Component , type}) => {
 
         switch(type){
             case "character" :
-                getCharacter(idParam).then(res => updateState(res))
+                getCharacter(idParam).then(res => updateState(res)).then(() => setProcess("confirmed"))
                 break
             case "comic" :
-                getComic(idParam).then(res => updateState(res))
+                getComic(idParam).then(res => updateState(res)).then(() => setProcess("confirmed"))
                 break
         }
     }
@@ -30,9 +31,6 @@ const SinglePage = ({Component , type}) => {
     const updateState = (content) => {
         setInfo(content)
     }
-
-    const content = info ? <Component info={info}/> : null
-    const spinner = !info ? <Spinner/> : null
 
     return(
         <>
@@ -44,8 +42,7 @@ const SinglePage = ({Component , type}) => {
                 <title>Single page for {type}</title>
             </Helmet>
             <AppBanner/>
-            {spinner}
-            {content}
+            {setContent(process , Component , info)}
         </>
     )
 }

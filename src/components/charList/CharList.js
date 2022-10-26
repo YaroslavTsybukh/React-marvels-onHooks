@@ -1,10 +1,26 @@
-import './charList.scss';
-
 import {useState , useRef , useEffect} from "react";
 import PropTypes from "prop-types";
 
 import useMarvelInfo from "../../services/request";
 import Spinner from "../spinner/Spinner";
+import Error from "../error/Error";
+
+import './charList.scss';
+
+const setContent = (process , Component , newItemsLoading) => {
+    switch(process){
+        case "waiting":
+            return <Spinner />
+        case "loading":
+            return newItemsLoading ? <Component /> : <Spinner />
+        case "confirmed":
+            return <Component />
+        case "error":
+            return <Error />
+        default:
+            throw new Error("Unexpected process state")
+    }
+}
 
 const CharList = ({charInfo}) => {
 
@@ -12,9 +28,7 @@ const CharList = ({charInfo}) => {
     const [offset , setOffset] = useState(110)
     const [newItemsLoading , setNewItemsLoading] = useState(false)
     const [endedChar , setEndedChar] = useState(false)
-    const {getAllCharacters , loading} = useMarvelInfo()
-    const [inProp , setInProp] = useState(true)
-    const duration = 500
+    const {getAllCharacters , process , setProcess} = useMarvelInfo()
 
     useEffect( () => {
         onRequest(offset , true)
@@ -24,7 +38,7 @@ const CharList = ({charInfo}) => {
         initial ? setNewItemsLoading(false) : setNewItemsLoading(true)
         getAllCharacters(offset , "limit" , 9).then(res => {
             onLoadedChar(res)
-        })
+        }).then(() => setProcess("confirmed"))
     }
 
     const onLoadedChar = (newCharacters) => {
@@ -80,14 +94,10 @@ const CharList = ({charInfo}) => {
         })
     }
 
-    const character = renderCharacterList(char)
-    const loadingInfo = loading && !newItemsLoading ? <Spinner /> : null
-
     return (
         <div className="char__list">
             <ul className="char__grid">
-                {loadingInfo}
-                {character}
+                {setContent(process , () => renderCharacterList(char) , newItemsLoading)}
             </ul>
             <button
                 onClick={() => onRequest(offset)}

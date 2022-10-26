@@ -5,7 +5,22 @@ import useMarvelInfo from "../../services/request"
 
 import './comicsList.scss';
 import Spinner from "../spinner/Spinner";
+import Error from "../error/Error";
 
+const setContent = (process , Component , newItemsLoading) => {
+    switch(process){
+        case "waiting":
+            return <Spinner />
+        case "loading":
+            return newItemsLoading ? <Component /> : <Spinner />
+        case "confirmed":
+            return <Component />
+        case "error":
+            return <Error />
+        default:
+            throw new Error("Unexpected process state ")
+    }
+}
 
 const ComicsList = () => {
 
@@ -14,7 +29,7 @@ const ComicsList = () => {
     const [newItemsLoading , setNewItemsLoading] = useState(false)
     const [endedComics , setEndedComics] = useState(false)
 
-    const {loading , getAllComics} = useMarvelInfo()
+    const {getAllComics , process , setProcess} = useMarvelInfo()
 
     useEffect(() => {
         onRequest(offset , true)
@@ -22,7 +37,7 @@ const ComicsList = () => {
 
     const onRequest = (offset , initial) => {
         initial ? setNewItemsLoading(false) : setNewItemsLoading(true)
-        getAllComics(offset).then(res => updateComics(res))
+        getAllComics(offset).then(res => updateComics(res)).then(() => setProcess("confirmed"))
     }
 
     const updateComics = (comicsArray) => {
@@ -52,14 +67,10 @@ const ComicsList = () => {
         })
     }
 
-    const content = renderLiItems(comics)
-    const spinner = loading && !newItemsLoading ? <Spinner/> : null
-
     return (
         <div className="comics__list">
             <ul className="comics__grid">
-                {spinner}
-                {content}
+                {setContent(process , () => renderLiItems(comics) , newItemsLoading)}
             </ul>
             <button className="button button__main button__long"
                     onClick={() => onRequest(offset)}

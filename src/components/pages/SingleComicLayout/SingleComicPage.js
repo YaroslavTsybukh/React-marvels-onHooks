@@ -2,8 +2,8 @@ import {Link} from "react-router-dom"
 
 import  "./singleComic.scss"
 
-const ViewSingleComicPage = ({info}) => {
-    const {description , name , price , pageCount , language , thumbnail} = info
+const ViewSingleComicPage = ({data}) => {
+    const {description , name , price , pageCount , language , thumbnail} = data
 
     return (
         <div className="single-comic">

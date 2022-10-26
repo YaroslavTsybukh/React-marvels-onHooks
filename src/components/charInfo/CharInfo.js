@@ -3,14 +3,13 @@ import {useNavigate} from "react-router-dom"
 
 import './charInfo.scss';
 
-import Spinner from "../spinner/Spinner"
-import Skeleton from "../skeleton/Skeleton"
 import useMarvelInfo from "../../services/request"
+import setContent from "../../utils/setContent";
 
 const CharInfo = ({charInfo}) => {
     const [char , setChar] = useState(null)
 
-    const {loading , getCharacter} = useMarvelInfo()
+    const {getCharacter , process , setProcess} = useMarvelInfo()
     const navigate = useNavigate()
 
     useEffect(() => {
@@ -23,29 +22,24 @@ const CharInfo = ({charInfo}) => {
 
     const getCharInfo = () => {
         if(!charInfo) return
-        getCharacter(charInfo).then(res => updateCharInfo(res))
+        getCharacter(charInfo).then(res => updateCharInfo(res)).then(() => setProcess("confirmed"))
     }
 
     const navigateComic = (url) => {
         navigate(url.slice(35))
     }
 
-    const spinner = loading ? <Spinner /> : null;
-    const skeleton = loading || char ? null : <Skeleton />;
-    const content = !loading && char ? <ViewChar charInfo={char} info={charInfo} navigate={navigateComic}/> : null;
     return (
         <div className="char__info">
-            {skeleton}
-            {spinner}
-            {content}
+            {setContent(process , ViewChar , char , navigateComic)}
         </div>
     )
 }
 
 export default CharInfo;
 
-const ViewChar = ({charInfo , navigate}) => {
-    const {id , name , description , homepage , thumbnail , wiki , comics} = charInfo
+const ViewChar = ({data , navigate}) => {
+    const {id , name , description , homepage , thumbnail , wiki , comics} = data
 
     let objectFit = {"objectFit" : "cover"}
 

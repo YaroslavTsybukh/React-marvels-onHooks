@@ -4,7 +4,7 @@ const useMarvelInfo = () => {
     const _apiKey = "9e0a30c0c5b259f9360bba6b1f9e4410"
     const _baseOffset = 110
 
-    const { request , error , loading , clearError} = useHTTP()
+    const { request , clearError , process , setProcess} = useHTTP()
 
     const getAllCharacters =  async (offset = _baseOffset , queryParam , value) => {
         let response = await request(`https://gateway.marvel.com:443/v1/public/characters?${queryParam}=${value}&offset=${offset}&apikey=${_apiKey}`)
@@ -58,7 +58,7 @@ const useMarvelInfo = () => {
         }
     }
 
-    return {getAllCharacters , getCharacter , loading , error , clearError , getAllComics , getComic , getAllCharactersBySearch}
+    return {getAllCharacters , getCharacter , clearError , getAllComics , getComic , getAllCharactersBySearch , process , setProcess}
 }
 
 export default useMarvelInfo

@@ -1,14 +1,14 @@
-import './randomChar.scss';
 import {useState , useEffect} from "react"
 import useMarvelInfo from "../../services/request";
 import mjolnir from '../../resources/img/mjolnir.png';
-import Spinner from "../spinner/Spinner";
-import Error from "../error/Error"
+import setContent from "../../utils/setContent";
+
+import './randomChar.scss';
 
 const RandomChar = () => {
     const [char , setChar] = useState({})
 
-    const {getCharacter , loading , error , clearError} = useMarvelInfo()
+    const {getCharacter , clearError , process , setProcess} = useMarvelInfo()
 
     useEffect(() => {
         updateChar()
@@ -21,19 +21,14 @@ const RandomChar = () => {
     const updateChar = () => {
         clearError()
         const randomNumber = Math.floor(Math.random() * (1011175 - 1011334) + 1011334)
-        getCharacter(randomNumber).then(res => charInfo(res))
+        getCharacter(randomNumber).then(res => charInfo(res)).then(() => setProcess("confirmed"))
     }
-
-    const errorGif = error ? <Error /> : null;
-    const load = loading ? <Spinner /> : null;
-    const content = (!loading && !error) ? <RandomCharBlock char={char}/> : null
-
 
     return (
         <div className="randomchar">
-            {errorGif}
-            {load}
-            {content}
+
+            {setContent(process , RandomCharBlock , char)}
+
             <div className="randomchar__static">
                 <p className="randomchar__title">
                     Random character for today!<br/>
@@ -53,8 +48,8 @@ const RandomChar = () => {
 
 export default RandomChar;
 
-const RandomCharBlock = ({char}) => {
-    const {name , description , homepage , thumbnail , wiki } = char
+const RandomCharBlock = ({data}) => {
+    const {name , description , homepage , thumbnail , wiki } = data
 
     let imageStyle = {"objectFit" : "cover"}
 
